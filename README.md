@@ -12,7 +12,7 @@ Sistem konversi dokumen (PDF, DOCX, XLSX, PPTX) menjadi format Markdown dengan k
 - **100% Deterministik**: Tanpa model generatif di tahap ekstraksi, mencegah halusinasi data.
 - **Preservasi Tabel & Format**: Tabel tetap berformat tabel Markdown murni (`| col | col |`).
 - **Optimal untuk LLM**: Output langsung dapat dibaca oleh ChatGPT, Claude, Gemini, maupun embedding pipeline RAG.
-- **Workflow Ala iLovePDF**: Antarmuka 3 langkah sederhana: Unggah -> Proses -> Unduh / Salin.
+- **Workflow Mudah**: Antarmuka 3 langkah sederhana: Unggah -> Proses -> Unduh / Salin.
 
 ---
 
@@ -24,40 +24,6 @@ Sistem konversi dokumen (PDF, DOCX, XLSX, PPTX) menjadi format Markdown dengan k
 | **Word** | `.docx` | Dokumen Microsoft Word |
 | **Excel** | `.xlsx` | Tabel lembar kerja spreadsheet |
 | **PowerPoint** | `.pptx` | Presentasi slide |
-
----
-
-## 🛠️ Menjalankan di Lokal
-
-### 1. Instalasi Dependensi
-Pastikan Python 3.10+ sudah terpasang:
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Konversi via CLI (Terminal)
-```bash
-python convert.py "path/ke/dokumen.pdf" [output.md]
-```
-
-### 3. Menjalankan Web UI
-```bash
-python server.py
-```
-Buka browser di `http://localhost:8000`.
-
----
-
-## 🌐 Deploy Gratis ke Cloud (Render.com)
-
-1. Buat akun di [Render.com](https://render.com).
-2. Buat **New Web Service** dan hubungkan repositori GitHub ini.
-3. Gunakan konfigurasi berikut:
-   - **Environment**: `Python 3`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn server:app --host 0.0.0.0 --port $PORT`
-   - **Plan**: `Free` ($0/month)
-4. Klik **Deploy Web Service**.
 
 ---
 
