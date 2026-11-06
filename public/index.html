@@ -17,16 +17,8 @@
     </div>
     <div class="flex items-center space-x-3 text-sm text-slate-500">
       <button onclick="toggleAbout()" class="text-slate-600 hover:text-red-600 font-medium px-2 py-1 rounded transition text-xs md:text-sm">Tentang</button>
-      <button onclick="toggleConfig()" class="text-slate-400 hover:text-slate-600 p-2" title="Pengaturan API"><i class="fa-solid fa-gear"></i></button>
     </div>
   </header>
-
-  <!-- Config Bar (opsional untuk backend Vercel/Cloud) -->
-  <div id="configBar" class="hidden bg-slate-100 border-b border-slate-200 py-2 px-6 text-xs flex items-center justify-center space-x-2">
-    <label class="font-medium text-slate-600">Backend API URL:</label>
-    <input type="text" id="apiUrlInput" class="px-2 py-1 border rounded w-72 text-xs" placeholder="Default: /api/convert">
-    <button onclick="saveApiUrl()" class="px-3 py-1 bg-slate-800 text-white rounded text-xs">Simpan</button>
-  </div>
 
   <!-- Main Container -->
   <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 max-w-4xl mx-auto w-full">
@@ -143,24 +135,10 @@
   <script>
     let currentFile = null;
     let convertedResult = null;
-    let backendUrl = localStorage.getItem("doc2md_api") || "/api/convert";
-
-    document.getElementById("apiUrlInput").value = backendUrl === "/api/convert" ? "" : backendUrl;
-
-    function toggleConfig() {
-      document.getElementById("configBar").classList.toggle("hidden");
-    }
+    const backendUrl = "/api/convert";
 
     function toggleAbout() {
       document.getElementById("aboutModal").classList.toggle("hidden");
-    }
-
-    function saveApiUrl() {
-      const val = document.getElementById("apiUrlInput").value.trim();
-      backendUrl = val || "/api/convert";
-      localStorage.setItem("doc2md_api", backendUrl);
-      alert("API URL disimpan: " + backendUrl);
-      toggleConfig();
     }
 
     const dropZone = document.getElementById('dropZone');
