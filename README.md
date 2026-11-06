@@ -30,17 +30,25 @@ Sistem konversi dokumen (PDF, DOCX, XLSX, PPTX) menjadi format Markdown dengan k
 ## 🔌 API Endpoint
 
 ### `POST /api/convert`
-Menerima file dokumen via `multipart/form-data` dan mengembalikan respons JSON.
+Menerima satu atau banyak dokumen via `multipart/form-data` dan mengembalikan respons JSON.
 
 **Request:**
-- `file`: File dokumen (`.pdf`, `.docx`, `.xlsx`, `.pptx`)
+- `files`: File dokumen tunggal atau ganda (`.pdf`, `.docx`, `.xlsx`, `.pptx`)
 
 **Response:**
 ```json
 {
   "status": "success",
-  "filename": "dokumen.md",
-  "markdown": "# Judul Dokumen\n\nTeks isi dokumen..."
+  "results": [
+    {
+      "filename": "dokumen1.md",
+      "markdown": "# Judul Dokumen 1\n\nTeks isi dokumen..."
+    },
+    {
+      "filename": "dokumen2.md",
+      "markdown": "# Judul Dokumen 2\n\nTeks isi dokumen..."
+    }
+  ]
 }
 ```
 
