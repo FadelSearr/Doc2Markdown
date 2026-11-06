@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doc2Markdown - Konversi PDF & Dokumen ke Markdown</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col font-sans text-slate-800">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 py-4 px-6 flex justify-between items-center sticky top-0 z-10">
+    <div class="flex items-center space-x-2">
+      <div class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center text-white font-black text-lg">M↓</div>
+      <span class="text-xl font-bold tracking-tight text-slate-900">Doc2Markdown</span>
+    </div>
+    <div class="flex items-center space-x-3 text-sm text-slate-500">
+      <span class="hidden md:inline">Akurat 100% · Siap untuk AI</span>
+      <button onclick="toggleConfig()" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-gear"></i></button>
+    </div>
+  </header>
+
+  <!-- Config Bar (opsional untuk backend Vercel/Cloud) -->
+  <div id="configBar" class="hidden bg-slate-100 border-b border-slate-200 py-2 px-6 text-xs flex items-center justify-center space-x-2">
+    <label class="font-medium text-slate-600">Backend API URL:</label>
+    <input type="text" id="apiUrlInput" class="px-2 py-1 border rounded w-72 text-xs" placeholder="Default: /api/convert">
+    <button onclick="saveApiUrl()" class="px-3 py-1 bg-slate-800 text-white rounded text-xs">Simpan</button>
+  </div>
+
+  <!-- Main Container -->
+  <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 max-w-4xl mx-auto w-full">
+
+    <!-- Step 1: Upload Dropzone -->
+    <div id="stepUpload" class="w-full flex flex-col items-center">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">Konversi PDF ke Markdown</h1>
+        <p class="text-slate-500">Pertahankan 100% format asli tabel, struktur, dan heading untuk konsumsi AI.</p>
+      </div>
+
+      <div id="dropZone" class="w-full max-w-2xl border-2 border-dashed border-red-300 hover:border-red-500 bg-white hover:bg-red-50/30 rounded-2xl p-10 flex flex-col items-center justify-center cursor-pointer transition-all shadow-sm">
+        <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx,.xlsx,.pptx,.html">
+        <div class="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <p class="text-lg font-semibold text-slate-800 mb-1">Pilih file atau seret ke sini</p>
+        <p class="text-xs text-slate-400 mb-4">Mendukung PDF, DOCX, XLSX, PPTX</p>
+        <button type="button" onclick="document.getElementById('fileInput').click()" class="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-sm transition">Pilih File</button>
+      </div>
+    </div>
+
+    <!-- Step 2: File Selected & Ready to Process -->
+    <div id="stepProcess" class="hidden w-full max-w-lg flex flex-col items-center">
+      <div class="bg-white border border-slate-200 rounded-xl p-6 w-full shadow-sm mb-6 flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-xl flex-shrink-0">
+          <i class="fa-solid fa-file-pdf" id="fileIcon"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p id="selectedFileName" class="text-sm font-semibold text-slate-800 truncate"></p>
+          <p id="selectedFileSize" class="text-xs text-slate-400"></p>
+        </div>
+        <button onclick="resetFlow()" class="text-slate-400 hover:text-red-500 p-2"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <button id="convertBtn" onclick="runConversion()" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3.5 rounded-xl shadow-md text-base transition flex items-center justify-center space-x-2">
+        <span>Konversi ke Markdown</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- Step 3: Loading Indicator -->
+    <div id="stepLoading" class="hidden w-full max-w-md flex flex-col items-center text-center p-8">
+      <div class="w-14 h-14 border-4 border-red-200 border-t-red-600 rounded-full animate-spin mb-4"></div>
+      <h3 class="text-lg font-bold text-slate-800 mb-1">Memproses Dokumen...</h3>
+      <p class="text-sm text-slate-400">Mengekstrak teks, hierarki, dan tabel deterministik tanpa halusinasi.</p>
+    </div>
+
+    <!-- Step 4: Result & Download (ala iLovePDF) -->
+    <div id="stepResult" class="hidden w-full max-w-2xl flex flex-col items-center">
+      <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-3">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-900 mb-1">Konversi Selesai!</h2>
+      <p id="resultFileName" class="text-sm text-slate-500 mb-6"></p>
+
+      <!-- Action Buttons -->
+      <div class="w-full max-w-md flex flex-col sm:flex-row gap-3 mb-8">
+        <button id="downloadBtn" onclick="downloadResult()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-download"></i>
+          <span>Unduh .md</span>
+        </button>
+        <button onclick="copyToClipboard()" id="copyBtn" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl shadow transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-copy"></i>
+          <span id="copyBtnText">Salin Markdown</span>
+        </button>
+      </div>
+
+      <!-- Preview Accordion -->
+      <div class="w-full bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-6">
+        <button onclick="togglePreview()" class="w-full px-5 py-3 text-left font-semibold text-sm text-slate-700 flex justify-between items-center bg-slate-50 border-b border-slate-100">
+          <span>Pratinjau Hasil Markdown</span>
+          <i class="fa-solid fa-chevron-down" id="previewIcon"></i>
+        </button>
+        <div id="previewContent" class="hidden p-5 max-h-72 overflow-y-auto font-mono text-xs text-slate-700 bg-slate-50/50 whitespace-pre-wrap"></div>
+      </div>
+
+      <button onclick="resetFlow()" class="text-sm text-slate-500 hover:text-slate-800 underline font-medium">
+        Konversi dokumen lain
+      </button>
+    </div>
+
+  </main>
+
+  <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200">
+    Doc2Markdown · Pemrosesan deterministik berbasis Microsoft MarkItDown
+  </footer>
+
+  <script>
+    let currentFile = null;
+    let convertedResult = null;
+    let backendUrl = localStorage.getItem("doc2md_api") || "/api/convert";
+
+    document.getElementById("apiUrlInput").value = backendUrl === "/api/convert" ? "" : backendUrl;
+
+    function toggleConfig() {
+      document.getElementById("configBar").classList.toggle("hidden");
+    }
+
+    function saveApiUrl() {
+      const val = document.getElementById("apiUrlInput").value.trim();
+      backendUrl = val || "/api/convert";
+      localStorage.setItem("doc2md_api", backendUrl);
+      alert("API URL disimpan: " + backendUrl);
+      toggleConfig();
+    }
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-red-500', 'bg-red-50'); });
+    dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-red-500', 'bg-red-50'); });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-red-500', 'bg-red-50');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024, dm = 2, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function handleFile(file) {
+      currentFile = file;
+      document.getElementById('selectedFileName').innerText = file.name;
+      document.getElementById('selectedFileSize').innerText = formatBytes(file.size);
+      
+      const ext = file.name.split('.').pop().toLowerCase();
+      const icon = document.getElementById('fileIcon');
+      icon.className = ext === 'pdf' ? 'fa-solid fa-file-pdf' :
+                       ['doc','docx'].includes(ext) ? 'fa-solid fa-file-word' :
+                       ['xls','xlsx'].includes(ext) ? 'fa-solid fa-file-excel' : 'fa-solid fa-file-lines';
+
+      showStep('stepProcess');
+    }
+
+    function showStep(stepId) {
+      ['stepUpload', 'stepProcess', 'stepLoading', 'stepResult'].forEach(id => {
+        document.getElementById(id).classList.toggle('hidden', id !== stepId);
+      });
+    }
+
+    async function runConversion() {
+      if (!currentFile) return;
+      showStep('stepLoading');
+
+      const formData = new FormData();
+      formData.append('file', currentFile);
+
+      try {
+        const res = await fetch(backendUrl, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: 'Gagal memproses file' }));
+          throw new Error(err.detail || 'Terjadi kesalahan');
+        }
+
+        convertedResult = await res.json();
+        document.getElementById('resultFileName').innerText = convertedResult.filename;
+        document.getElementById('previewContent').innerText = convertedResult.markdown;
+        showStep('stepResult');
+      } catch (err) {
+        alert("Error: " + err.message);
+        showStep('stepProcess');
+      }
+    }
+
+    function downloadResult() {
+      if (!convertedResult) return;
+      const blob = new Blob([convertedResult.markdown], { type: 'text/markdown;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = convertedResult.filename;
+      link.click();
+    }
+
+    function copyToClipboard() {
+      if (!convertedResult) return;
+      navigator.clipboard.writeText(convertedResult.markdown);
+      const text = document.getElementById('copyBtnText');
+      text.innerText = 'Tersalin!';
+      setTimeout(() => { text.innerText = 'Salin Markdown'; }, 2000);
+    }
+
+    function togglePreview() {
+      const p = document.getElementById('previewContent');
+      const icon = document.getElementById('previewIcon');
+      p.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+    }
+
+    function resetFlow() {
+      currentFile = null;
+      convertedResult = null;
+      fileInput.value = '';
+      showStep('stepUpload');
+    }
+  </script>
+</body>
+</html>
+
