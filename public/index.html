@@ -16,8 +16,8 @@
       <span class="text-xl font-bold tracking-tight text-slate-900">Doc2Markdown</span>
     </div>
     <div class="flex items-center space-x-3 text-sm text-slate-500">
-      <span class="hidden md:inline">Akurat 100% · Siap untuk AI</span>
-      <button onclick="toggleConfig()" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-gear"></i></button>
+      <button onclick="toggleAbout()" class="text-slate-600 hover:text-red-600 font-medium px-2 py-1 rounded transition text-xs md:text-sm">Tentang</button>
+      <button onclick="toggleConfig()" class="text-slate-400 hover:text-slate-600 p-2" title="Pengaturan API"><i class="fa-solid fa-gear"></i></button>
     </div>
   </header>
 
@@ -109,6 +109,31 @@
       </button>
     </div>
 
+    <!-- About Modal -->
+    <div id="aboutModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center text-white font-bold text-sm">M↓</div>
+            <h3 class="text-lg font-bold text-slate-900">Tentang Doc2Markdown</h3>
+          </div>
+          <button onclick="toggleAbout()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="space-y-3 text-sm text-slate-600">
+          <p><strong>Doc2Markdown</strong> adalah sistem konversi dokumen (PDF, Word, Excel, PPTX) ke format Markdown dengan keakuratan tinggi tanpa mengubah isi atau mengarang teks.</p>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs space-y-1.5">
+            <p><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i><strong>100% Deterministik:</strong> Tanpa halusinasi, teks persis dokumen asli.</p>
+            <p><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i><strong>Struktur Terjaga:</strong> Heading hierarkis dan tabel rapi.</p>
+            <p><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i><strong>Optimal untuk AI:</strong> Siap dibaca ChatGPT, Claude, Gemini, atau pipeline RAG.</p>
+          </div>
+          <p class="text-xs text-slate-400">Didukung oleh mesin pemroses Microsoft MarkItDown.</p>
+        </div>
+        <div class="mt-6 flex justify-end">
+          <button onclick="toggleAbout()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold">Tutup</button>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200">
@@ -124,6 +149,10 @@
 
     function toggleConfig() {
       document.getElementById("configBar").classList.toggle("hidden");
+    }
+
+    function toggleAbout() {
+      document.getElementById("aboutModal").classList.toggle("hidden");
     }
 
     function saveApiUrl() {
